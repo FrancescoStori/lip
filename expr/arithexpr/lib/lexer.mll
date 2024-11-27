@@ -16,4 +16,8 @@ rule read =
   | "else" { ELSE }
   | "&&" { AND }
   | "||" { OR }
+  | "iszero" {ISZERO}
+  | "0" {ZERO}
+  | "pred" {PRED}
+  | "succ" {SUCC}
   | eof { EOF }
