@@ -4,6 +4,7 @@ open Ast
 
 %token TRUE
 %token FALSE
+%token NOT
 %token LPAREN
 %token RPAREN
 %token IF
@@ -16,6 +17,12 @@ open Ast
 %token ISZERO
 %token ZERO
 %token EOF
+
+%left OR
+%left AND
+%nonassoc NOT
+%left ISZERO
+%left SUCC PRED
 
 %start <expr> prog
 
@@ -32,9 +39,9 @@ expr:
   | e1 = expr; AND; e2 = expr; { If(e1, e2, False) }
   | e1 = expr; OR; e2 = expr; { If(e1, True, e2) }
   | ZERO { Zero }
-  | ISZERO; e = expr; {IsZero(e)}
   | SUCC ; e = expr; { Succ(e) }
   | PRED ; e = expr; { Pred(e) }
+  | ISZERO; e = expr; {IsZero(e)}
+  | NOT; e = expr; { Not(e) }
   | LPAREN; e=expr; RPAREN {e}
 ;
-

@@ -1,0 +1,27 @@
+
+** Conflict (shift/reduce) in state 18.
+** Tokens involved: OR AND
+** The following explanations concentrate on token OR.
+** This state is reached from prog after reading:
+
+IF expr THEN expr ELSE expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+expr EOF 
+(?)
+
+** In state 18, looking ahead at OR, reducing production
+** expr -> IF expr THEN expr ELSE expr
+** is permitted because of the following sub-derivation:
+
+expr OR expr // lookahead token appears
+IF expr THEN expr ELSE expr . 
+
+** In state 18, looking ahead at OR, shifting is permitted
+** because of the following sub-derivation:
+
+IF expr THEN expr ELSE expr 
+                       expr . OR expr 

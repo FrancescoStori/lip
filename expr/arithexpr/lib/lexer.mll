@@ -14,8 +14,9 @@ rule read =
   | "if" { IF }
   | "then" { THEN }
   | "else" { ELSE }
-  | "&&" { AND }
-  | "||" { OR }
+  | "not" { NOT }
+  | "and" { AND }
+  | "or" { OR }
   | "iszero" {ISZERO}
   | "0" {ZERO}
   | "pred" {PRED}
