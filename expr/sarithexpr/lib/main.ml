@@ -1,10 +1,17 @@
 open Ast
 
+exception TypeError of string;;
+
 type exprval =
     Bool of bool
   | Nat of int
 
 type exprtype = BoolT | NatT
+
+let string_of_type = function
+    BoolT -> "Bool"
+  | NatT -> "Nat"
+
 
 let unBool = function (Bool e) -> e | _ -> failwith "boh"
 let unNat = function (Nat e) -> e | _ -> failwith "boh"
@@ -33,6 +40,49 @@ let parse (s : string) : expr =
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
+
+let rec typecheck = function 
+  True -> BoolT
+| False -> BoolT
+| If(e1,e2,e3) when typecheck e1 = BoolT && typecheck e2 = typecheck e3 -> typecheck e2
+| If(e1, e2, e3) when typecheck e1 = BoolT && typecheck e2 <> typecheck e3 -> 
+    raise (TypeError ((string_of_expr e2)^" has type "^(string_of_type(typecheck e2))^", but "^(string_of_expr e3)^" has type "^(string_of_type(typecheck e3))))
+
+| If (e1,_,_) when typecheck e1 <> BoolT -> 
+    raise (TypeError (string_of_expr e1^" has type "^(string_of_type(typecheck e1))^", but type Bool was expected"))
+
+| Not(e) when typecheck e = BoolT -> BoolT
+| Not(e) when typecheck e <> BoolT ->
+   raise (TypeError (string_of_expr e^" has type "^(string_of_type(typecheck e))^", but type Bool was expected"))
+
+| And(e1,e2) when typecheck e1 = BoolT && typecheck e2 = BoolT -> BoolT
+| And(e1,e2) when typecheck e1 <> BoolT && typecheck e2 <> BoolT -> 
+    raise (TypeError (string_of_expr e1^" has type "^(string_of_type(typecheck e1))^" and "^(string_of_expr e2)^" has type "^(string_of_type(typecheck e2))^ ", but type Bool was expected"))
+| And(e1,_) when typecheck e1 <> BoolT -> 
+    raise (TypeError (string_of_expr e1^" has type "^(string_of_type(typecheck e1))^ ", but type Bool was expected"))
+| And(_,e2) when typecheck e2 <> BoolT -> 
+    raise (TypeError (string_of_expr e2^" has type "^(string_of_type(typecheck e2))^ ", but type Bool was expected"))
+
+| Or(e1,e2) when typecheck e1 = BoolT && typecheck e2 = BoolT -> BoolT
+| Or (e1,e2) when typecheck e1 <> BoolT && typecheck e2 <> BoolT -> 
+    raise (TypeError (string_of_expr e1^" has type "^(string_of_type(typecheck e1))^" and "^(string_of_expr e2)^" has type "^(string_of_type(typecheck e2))^ ", but type Bool was expected"))
+| Or(e1,_) when typecheck e1 <> BoolT -> 
+    raise (TypeError (string_of_expr e1^" has type "^(string_of_type(typecheck e1))^ ", but type Bool was expected"))
+| Or(_,e2) when typecheck e2 <> BoolT -> 
+    raise (TypeError (string_of_expr e2^" has type "^(string_of_type(typecheck e2))^ ", but type Bool was expected"))
+
+| Zero -> NatT
+| Succ(e) when typecheck e = NatT -> NatT
+| Succ(e) when typecheck e <> NatT -> 
+    raise (TypeError (string_of_expr e^" has type "^(string_of_type(typecheck e))^ ", but type Nat was expected"))
+| Pred(e) when typecheck e = NatT -> NatT
+| Pred(e) when typecheck e <> NatT -> 
+    raise (TypeError (string_of_expr e^" has type "^(string_of_type(typecheck e))^ ", but type Nat was expected"))
+| IsZero(e) when typecheck e = NatT -> BoolT
+| IsZero(e) when typecheck e <> NatT -> 
+    raise (TypeError (string_of_expr e^" has type "^(string_of_type(typecheck e))^ ", but type Nat was expected"))
+    
+| _ -> raise (TypeError "Errore: l'espressione non è ben tipata")
 
 exception NoRuleApplies
 
