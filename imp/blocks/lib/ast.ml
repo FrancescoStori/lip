@@ -18,6 +18,8 @@ type decl =
   | IntVar of ide
   | BoolVar of ide
 
+
+
 type cmd =
   | Skip
   | Assign of string * expr

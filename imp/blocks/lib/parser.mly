@@ -2,6 +2,8 @@
 open Ast
 %}
 
+%token INT
+%token BOOL
 %token TRUE
 %token FALSE
 %token NOT
@@ -26,8 +28,8 @@ open Ast
 
 %token LPAREN
 %token RPAREN
-%token LBLOCK
-%token RBLOCK
+%token LBRACE
+%token RBRACE
 %token EOF
 
 %left SEQ
@@ -64,8 +66,13 @@ expr:
 ;
 
 decl:
-  | INT; x = ID; SEQ; d = decl; { IntVar(x) }
-  | BOOL; x = ID; SEQ; d = decl; { BoolVar(x) }
+  | INT; x = ID; { IntVar(x) }
+  | BOOL; x = ID; { BoolVar(x) }
+;
+
+decls:
+  | d = decl; SEQ; ds = decls; { d :: ds }
+  | { [] }
 ;
 
 cmd:
@@ -76,5 +83,5 @@ cmd:
   | c1 = cmd; SEQ; c2 = cmd; { Seq(c1,c2) }
   | LPAREN; c=cmd; RPAREN; { c }
 
-  | LBLOCK; d_list = decl list; c = cmd; RBLOCK; {Decl(d_list, c)}
-  | LBLOCK; c = cmd; RBLOCK; { Block(c) } 
+  | LBRACE; d_list = decls; c = cmd; RBRACE; {Decl(d_list, c)}
+  | LBRACE; c = cmd; RBRACE; { Block(c) } 
