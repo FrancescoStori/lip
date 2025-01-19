@@ -14,6 +14,10 @@ rule read =
   | white { read lexbuf }  
   | "(" { LPAREN }
   | ")" { RPAREN }
+  | "{"  { LBLOCK }
+  | "}"  { RBLOCK }
+  | "int" { INT }
+  | "bool" { BOOL }
   | "true" { TRUE }
   | "false" { FALSE }
   | "not" { NOT }
