@@ -84,4 +84,3 @@ cmd:
   | LPAREN; c=cmd; RPAREN; { c }
 
   | LBRACE; d_list = decls; c = cmd; RBRACE; {Decl(d_list, c)}
-  | LBRACE; c = cmd; RBRACE; { Block(c) } 

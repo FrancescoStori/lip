@@ -1,6 +1,12 @@
 open Ast
 open Types
 
+
+
+let apply st x = match ((topenv st) x) with
+  | BVar l -> (getmem st) l
+  | IVar l -> (getmem st) l
+
 let parse (s : string) : cmd =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
@@ -10,7 +16,7 @@ let parse (s : string) : cmd =
 let rec eval_expr st = function 
   | True -> Bool true
   | False -> Bool false
-  | Var(x) -> st x
+  | Var(x) -> apply st x
   | Const(n) -> Int n
   | Not(e) -> (match (eval_expr st e) with
         Bool b -> Bool (not b)
@@ -77,8 +83,10 @@ let rec trace1 = function
     
     | Decl(d_list, c1) -> let (e,l) = sem_decl (topenv st, getloc st) d_list in
       Cmd(Block(c1), make_state (e::(getenv st)) (getmem st) l)
-      | _ -> raise (TypeError "Decl")
-    | _ -> failwith "diocane"
+    
+    | Block(c) -> (match (trace1 (Cmd(c, st))) with
+      | St st' -> St (setenv st' (popenv st'))
+      | Cmd(c', st') -> Cmd(Block(c'), st'))
 
 let rec trace_rec n_rec t =
   if n_rec <= 0 then [t]
