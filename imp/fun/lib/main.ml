@@ -34,6 +34,7 @@ let rec trace1_expr st = function
   
   | Or(True, _) -> (True, st)
   | Or(_, True) -> (True, st)
+  | Or(False, False) -> (False, st)
   | Or(False, e) -> let (e', st') = trace1_expr st e in (Or(False, e'), st') 
   | Or(e1, e2) -> let (e1', st') = trace1_expr st e1 in (Or(e1', e2), st')
   
